@@ -10,6 +10,7 @@ export const create = asyncHandler(async (req, res) => {
   return res.status(400).send("bad request");
   }
     const task = await User.create({
+      owner: req.user.UserId,
       title: title,
       description: description,
       status: status,

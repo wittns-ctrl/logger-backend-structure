@@ -1,7 +1,11 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 const titleSchema = new mongoose.Schema({
-
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'activity',
+        required: true
+    },
     title: {
         type: String,
         minlength: [2,'title should be atleast 2 characters'],
