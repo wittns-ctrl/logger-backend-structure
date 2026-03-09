@@ -19,7 +19,7 @@ export const create = asyncHandler(async (req, res) => {
     res.status(201).json(task);
 });
 export const fetch = asyncHandler(async (req, res) => {
-    const search = await User.find();
+    const search = await User.find().populate("owner","name");
     res.status(200).json(search);
 });
 export const fetchById = asyncHandler(async (req, res) => {
