@@ -2,6 +2,8 @@ import express from "express";
 import protect from "../middleware/protect.js"
 const router  = express.Router();
 import {create,fetch,fetchById,fetch_update,f_delete,login,refresh,register,logout} from "../controllers/taskController.js"
+import {validate} from "../middleware/valid.js";
+import { joiSchema } from "../validate/validation.js";
 router.route("/tasks")
 .post(protect,create)
 .get(protect,fetch)
@@ -14,7 +16,7 @@ router.route("/login")
 router.route("/refresh")
 .post(refresh)
 router.route("/register")
-.post(register)
+.post(validate(joiSchema),register)
 router.route("/logout")
 .post(protect,logout)
 
