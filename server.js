@@ -3,10 +3,12 @@ import errorHandler from './middleware/errorhandler.js'
 import dotenv from "dotenv"
 import router from "./routes/taskRoute.js"
 import cookieParser from 'cookie-parser'
+import mongoSanitize from 'express-mongo-sanitize'
 dotenv.config()
 import connectDB from "./config/db.js"
 const app = express();
 app.use(express.json());
+app.use(mongoSanitize())
 app.use(cookieParser())
 const PORT = process.env.PORT || 5000;
 connectDB();
