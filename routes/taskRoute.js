@@ -3,10 +3,10 @@ import protect from "../middleware/protect.js"
 const router  = express.Router();
 import {create,fetch,fetchById,fetch_update,f_delete,login,refresh,register,logout} from "../controllers/taskController.js"
 import {validate} from "../middleware/valid.js";
-import { joiSchema } from "../validate/validation.js";
+import { joiSchema,titleSchema } from "../validate/validation.js";
 router.route("/tasks")
-.post(protect,create)
-.get(fetch)
+.post(protect,validate(titleSchema),create)
+.get(protect,fetch)
 router.route("/tasks/:id")
 .get(protect,fetchById)
 .patch(protect,fetch_update)

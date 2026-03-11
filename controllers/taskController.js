@@ -1,14 +1,17 @@
 import { generateAccessToken,generateRefreshToken } from "../middleware/token.js";
+import ApiError from "../middleware/class.js";
 import {User,users} from "../models/task.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import asyncHandler from "express-async-handler"
 import sanitize from "mongo-sanitize";
+
 export const create = asyncHandler(async (req, res) => {
-  const { title, description, status, priority } = req.body;
+  const sanitizer = sanitize(req.body)
+  const { title, description, status, priority } = sanitizer;
 
   if ( !title ||title.length==0) {
-  return res.status(400).send("bad request");
+  throw new ApiError('bad request',404);
   }
     const task = await User.create({
       owner: req.user.userId,
@@ -22,15 +25,17 @@ export const create = asyncHandler(async (req, res) => {
 
 
 export const fetch = asyncHandler(async (req, res) => {
-  const {page,limit,title} = req.query
-  const priority = parseInt(req.query.priority)
+  const sanitizer = sanitize(req.query);
+  const page = sanitizer.page || 1;
+  const limit = sanitizer.limit || 3;
+  const priority = parseInt(sanitizer.priority)
   const skip = (page-1)*limit;
   const filter = {};
   if(req.query.title){
-    filter.title = req.query.title
+    filter.title = sanitizer.title
   }
-  if(req.query.priority){
-    filter.priority = req.query.priority
+  if(sanitizer.priority){
+    filter.priority = sanitizer.priority
   }
     const search = await User.find(filter)
                              .populate("owner","name")
@@ -42,75 +47,87 @@ export const fetch = asyncHandler(async (req, res) => {
 export const fetchById = asyncHandler(async (req, res) => {
     const exists = await User.findById(req.params.id)
     if (!exists) {
-     res.status(404)
-     throw new Error("user not found");
+     throw new Error("user not found",404);
     } else {
       res.status(200).json(exists);
     }
 });
+
+
 export const fetch_update = asyncHandler(async (req, res) => {
-    const id_ = req.params.id;
-    const content = req.body;
+  const sanitizer = sanitize(req.params)
+  const sanis = sanitize(req.body)
+    const id_ = sanitizer.id;
+    const content = sanis;
     const findUpdated = await User.findOneAndUpdate({ id: id_ }, content, {
       new: true,
     });
     if (!findUpdated) {
-      res.status(404)
-      throw new Error("not found");
+      throw new Error("not found",404);
     }
     res.status(200).json(findUpdated);
 });
+
+
+
 export const f_delete = asyncHandler(async (req, res) => {
-    const id_ = parseInt(req.params.id);
+  const sanitizer = sanitize(req.params)
+    const id_ = parseInt(sanitizer.id);
     const deleter = await User.findOneAndDelete({ id: id_ });
     if (!deleter) {
-    res.status(404)
-    throw new Error("not found");
+    throw new Error("not found",404);
     }
     res.status(200).json("user deleted successfully");
 
 });
+
+
 export const login = asyncHandler(async(req,res) => {
-  const {email,password} = req.body;
+  const sanitized = sanitize(req.body);
+  const {email,password} = sanitized;
   const search = await users.findOne({email});
   if (!search){
-    res.status(404);
-    throw new Error("user not found")
+    throw new Error("user not found",404)
   }
   const matcher = search.password;
   const comparing = await bcrypt.compare(password,matcher)
   if(!comparing){
-    res.status(401);
-    throw new Error("invalid request")
+  
+    throw new Error("invalid request",401)
   }
   generateRefreshToken(res,search._id)
   const token = generateAccessToken(res,search._id);
 })
 
+
+
+
 export const refresh = asyncHandler(async(req,res) => {
   const refreshToken = req.cookies.RefreshToken;
   if(!refreshToken){
-    res.status(401)
-    throw new Error("no refreshtoken , please login again")
+  
+    throw new Error("no refreshtoken , please login again",401)
   }
   try{
   const decoded = jwt.verify(refreshToken,process.env.JWT_REFRESH)
   const  accessToken = generateAccessToken(res,decoded._id)
   }catch(error){
-    res.status(401)
     if(error.name === "TokenExpiredError"){
-      throw new Error("token expired , please login again")
+      throw new Error("token expired , please login again",401)
     }
   }
 })
  
+
+
+
 export const register =  asyncHandler(async(req,res) => {
 const sanitizedBody = sanitize(req.body);
 const {name,email,password} = sanitizedBody;
 const existes = await users.findOne({email:req.body.email});
 if(existes){
-  res.status(401)
- throw new Error("unauthorized, email already exists");
+  
+ throw new Error("unauthorized, email already exists",401);
 }
 const createUser = users.create(
   {
@@ -122,11 +139,13 @@ const createUser = users.create(
 res.status(201).send("user created successfully")
 })
 
+
+
 export const logout = asyncHandler(async(req,res) => {
   const refreshToken = req.cookies.RefreshToken
   if(!refreshToken){
-    res.status(400)
-    throw new Error("no token to logout")
+    
+    throw new Error("no token to logout",400)
   }
   res.clearCookie("RefreshToken",
   {
