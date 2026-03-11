@@ -19,8 +19,24 @@ export const create = asyncHandler(async (req, res) => {
     });
     res.status(201).json(task);
 });
+
+
 export const fetch = asyncHandler(async (req, res) => {
-    const search = await User.find().populate("owner","name");
+  const {page,limit,title} = req.query
+  const priority = parseInt(req.query.priority)
+  const skip = (page-1)*limit;
+  const filter = {};
+  if(req.query.title){
+    filter.title = req.query.title
+  }
+  if(req.query.priority){
+    filter.priority = req.query.priority
+  }
+    const search = await User.find(filter)
+                             .populate("owner","name")
+                             .sort({createdAt:-1})
+                             .limit(limit)
+                             .skip(skip)
     res.status(200).json(search);
 });
 export const fetchById = asyncHandler(async (req, res) => {

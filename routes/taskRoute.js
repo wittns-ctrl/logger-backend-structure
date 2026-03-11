@@ -6,7 +6,7 @@ import {validate} from "../middleware/valid.js";
 import { joiSchema } from "../validate/validation.js";
 router.route("/tasks")
 .post(protect,create)
-.get(protect,fetch)
+.get(fetch)
 router.route("/tasks/:id")
 .get(protect,fetchById)
 .patch(protect,fetch_update)
