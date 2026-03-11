@@ -3,6 +3,7 @@ import {User,users} from "../models/task.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import asyncHandler from "express-async-handler"
+import sanitize from "mongo-sanitize";
 export const create = asyncHandler(async (req, res) => {
   const { title, description, status, priority } = req.body;
 
@@ -88,10 +89,12 @@ export const refresh = asyncHandler(async(req,res) => {
 })
  
 export const register =  asyncHandler(async(req,res) => {
-const {name,email,password} = req.body;
-if(!email || email.length == 0){
-  res.status(400)
-  throw new Error("bad request")
+const sanitizedBody = sanitize(req.body);
+const {name,email,password} = sanitizedBody;
+const existes = await users.findOne({email:req.body.email});
+if(existes){
+  res.status(401)
+ throw new Error("unauthorized, email already exists");
 }
 const createUser = users.create(
   {
