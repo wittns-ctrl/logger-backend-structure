@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import asyncHandler from "express-async-handler"
 import sanitize from "mongo-sanitize";
+import xss from "xss-clean";
 
 export const create = asyncHandler(async (req, res) => {
   const sanitizer = sanitize(req.body)
@@ -29,22 +30,24 @@ export const fetch = asyncHandler(async (req, res) => {
 
   const page = sanitizer.page || 1;
   const limit = sanitizer.limit || 3;
-  const priority = parseInt(sanitizer.priority)
+  const priority_ = parseInt(xss(sanitizer.priority))
   const skip = (page-1)*limit;
 
   const filter = {/*owner: req.user.userId*/};
 
   if(sanitizer.keyword){
+    const keywords = xss(sanitizer.keyword)
     filter.$or = [
-      {title: {$regex: sanitizer.keyword, $options: 'i'}},
-      {description : {$regex : sanitizer.keyword, $options:'i'}}
+      {title: {$regex: keywords, $options: 'i'}},
+      {description : {$regex : keywords, $options:'i'}}
     ]
   }
   if(sanitizer.title){
-    filter.title = sanitizer.title
+    const keytitle = xss(sanitizer.title)
+    filter.title = keytitle
   }
   if(sanitizer.priority){
-    filter.priority = sanitizer.priority
+    filter.priority = priority_
   }
     const search = await User.find(filter)
                              .populate("owner","name")

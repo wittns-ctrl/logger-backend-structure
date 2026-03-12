@@ -11,8 +11,26 @@ import cookieParser from 'cookie-parser'
 dotenv.config()
 import connectDB from "./config/db.js"
 const app = express();
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://maxus.com"
+]
+const corsOptions = {
+  origin: (origin,callback) => {
+    if(!origin || allowedOrigins.includes(origin)) {
+      return callback(null,true)
+    }
+    else{
+      callback(new Error("cors not allow"),null)
+    }
+  },
+  methods: ['GET','POST','PATCH','DELETE'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
+}
 app.use(helmet());
-app.use(cors())
+app.use(cors(corsOptions))
 
 
 app.use(express.json());
