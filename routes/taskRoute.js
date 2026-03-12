@@ -4,6 +4,7 @@ const router  = express.Router();
 import {create,fetch,fetchById,fetch_update,f_delete,login,refresh,register,logout} from "../controllers/taskController.js"
 import {validate} from "../middleware/valid.js";
 import { joiSchema,titleSchema } from "../validate/validation.js";
+import { loginlimiter } from "../middleware/ratelimit.js";
 router.route("/tasks")
 .post(protect,validate(titleSchema),create)
 .get(fetch)
@@ -12,7 +13,7 @@ router.route("/tasks/:id")
 .patch(protect,fetch_update)
 .delete(protect,f_delete)
 router.route("/login")
-.post(login);
+.post(loginlimiter,login);
 router.route("/refresh")
 .post(refresh)
 router.route("/register")

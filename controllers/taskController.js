@@ -61,7 +61,6 @@ export const fetch = asyncHandler(async (req, res) => {
 });
 
 
-
 export const fetchById = asyncHandler(async (req, res) => {
     const exists = await User.findById(req.params.id)
     if (!exists) {
