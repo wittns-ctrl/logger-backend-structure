@@ -26,12 +26,21 @@ export const create = asyncHandler(async (req, res) => {
 
 export const fetch = asyncHandler(async (req, res) => {
   const sanitizer = sanitize(req.query);
+
   const page = sanitizer.page || 1;
   const limit = sanitizer.limit || 3;
   const priority = parseInt(sanitizer.priority)
   const skip = (page-1)*limit;
-  const filter = {};
-  if(req.query.title){
+
+  const filter = {owner: req.user.userId};
+
+  if(sanitizer.keyword){
+    filter.$or = [
+      {title: {$regex: sanitizer.keyword, $options: 'i'}},
+      {description : {$regex : sanitizer.keyword, $options:'i'}}
+    ]
+  }
+  if(sanitizer.title){
     filter.title = sanitizer.title
   }
   if(sanitizer.priority){
@@ -42,8 +51,18 @@ export const fetch = asyncHandler(async (req, res) => {
                              .sort({createdAt:-1})
                              .limit(limit)
                              .skip(skip)
-    res.status(200).json(search);
+    
+    const total = await User.countDocuments(filter);
+
+    res.status(200).json({
+      success:true,
+      total,
+      data: search
 });
+});
+
+
+
 export const fetchById = asyncHandler(async (req, res) => {
     const exists = await User.findById(req.params.id)
     if (!exists) {
@@ -92,8 +111,7 @@ export const login = asyncHandler(async(req,res) => {
   const matcher = search.password;
   const comparing = await bcrypt.compare(password,matcher)
   if(!comparing){
-  
-    throw new Error("invalid request",401)
+    throw new Error("invalid password",401)
   }
   generateRefreshToken(res,search._id)
   const token = generateAccessToken(res,search._id);
