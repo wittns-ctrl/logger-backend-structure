@@ -32,7 +32,7 @@ export const fetch = asyncHandler(async (req, res) => {
   const priority = parseInt(sanitizer.priority)
   const skip = (page-1)*limit;
 
-  const filter = {owner: req.user.userId};
+  const filter = {/*owner: req.user.userId*/};
 
   if(sanitizer.keyword){
     filter.$or = [
@@ -51,7 +51,6 @@ export const fetch = asyncHandler(async (req, res) => {
                              .sort({createdAt:-1})
                              .limit(limit)
                              .skip(skip)
-    
     const total = await User.countDocuments(filter);
 
     res.status(200).json({
