@@ -11,7 +11,7 @@ import ApiError from "./middleware/class.js";
 import cookieParser from 'cookie-parser'
 import connectDB from "./config/db.js"
 const app = express();
-
+app.set('trust proxy',1);
 dotenv.config()
 connectDB()
 app.use(compression());
