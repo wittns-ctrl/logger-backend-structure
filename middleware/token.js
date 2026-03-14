@@ -20,7 +20,7 @@ export const generateRefreshToken = (res, userId) => {
         {expiresIn : "7d"}
     )
 
-    res.cookie("RefreshToken",generateRefreshToken,
+    res.cookie("RefreshToken",RefreshToken,
         {
             httpOnly: true,
             secure: process.env.NODE_ENV !== "development",
