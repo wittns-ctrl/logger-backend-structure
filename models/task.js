@@ -52,7 +52,14 @@ const UserSchema = new mongoose.Schema({
         type: String,
         minlenght: 4,
         maxlenght: 10,
-        required : true
+        required : true,
+    profile: {
+        type: String,
+        default: 'https://via.placeholder.com/150'
+    },
+    cloudinary_id:{
+        type: String
+    }
     }
 })
 UserSchema.pre('save', async function(next){

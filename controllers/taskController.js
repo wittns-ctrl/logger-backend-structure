@@ -3,6 +3,7 @@ import ApiError from "../middleware/class.js";
 import {User,users} from "../models/task.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
+import cloudinary from "cloudinary";
 import asyncHandler from "express-async-handler"
 import sanitize from "mongo-sanitize";
 import xss from "xss-clean";
@@ -152,7 +153,8 @@ const createUser = users.create(
   {
     name: name,
     email: email,
-    password : password
+    password : password,
+    profile : req.files ? req.files : undefined
   }
 )
 res.status(201).send("user created successfully")
@@ -174,4 +176,24 @@ export const logout = asyncHandler(async(req,res) => {
   }
   )
   res.status(200).json({message : "user logged out successfully"})
+})
+
+export const imageUpload = asyncHandler(async(req,res) => {
+  res.status(200).json({
+    message: "file uploaded",
+    file: req.files.map(file => file.path)
+  })
+})
+
+export const updateImage = asyncHandler(async(req,res) => {
+const user = await users.findById(req.user.userId)
+
+if(user.cloudinary_id){
+  await cloudinary.uploader.destroy(user.cloudinary_id)
+}
+user.profile = req.file.path;
+user.cloudinary_id = req.file.filename;
+
+await user.save()
+res.status(200).json("image updated successfully")
 })

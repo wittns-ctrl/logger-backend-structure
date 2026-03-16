@@ -15,9 +15,9 @@ const storage = new cloudStorage({
     params: {
         cloudinary: cloudinary,
         allowed_formats: ['jpg','png','jpeg'],
-        transformation: [{width:500,lenght:500,crop:'limit'}]
+        transformation: [{ width: 500, height: 500, crop: 'limit' }]
     }
-})
+});
 
 export const upload = multer({storage:storage});
 export default upload;
