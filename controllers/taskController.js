@@ -3,7 +3,7 @@ import ApiError from "../middleware/class.js";
 import {User,users} from "../models/task.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
-import cloudinary from "cloudinary";
+import {v2 as cloudinary} from "cloudinary";
 import asyncHandler from "express-async-handler"
 import sanitize from "mongo-sanitize";
 import xss from "xss-clean";
