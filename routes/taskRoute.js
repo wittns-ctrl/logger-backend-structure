@@ -22,7 +22,7 @@ router.route("/register")
 router.route("/logout")
 .post(protect,logout)
 router.route("/upload")
-.post(upload.array('images',5),imageUpload)
+.post(upload.single('images'),imageUpload)
 router.route("/updateImage")
 .put(protect,upload.single("images"),updateImage)
 

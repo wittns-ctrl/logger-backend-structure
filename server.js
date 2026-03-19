@@ -1,5 +1,7 @@
 import express from "express"
 import errorHandler from './middleware/errorhandler.js'
+import swaggerUI from 'swagger-ui-express';
+import swaggerJSDoc from "swagger-jsdoc";
 import { limiter } from './middleware/ratelimit.js'
 import dotenv from "dotenv"
 import helmet from "helmet";
@@ -28,7 +30,7 @@ const corsOptions = {
       return callback(null, true)
     }
     else {
-      callback(new Error("cors not allow"), null)
+      callback(null,false);
     }
   },
   methods: ['GET', 'POST', 'PATCH', 'DELETE','PUT'],
@@ -47,6 +49,26 @@ app.use(cookieParser());
 
 app.use(hpp());
 
+
+const swaggerOptions = {
+  definition : {
+    openapi : '3.0.0',
+    info : {
+      title : "studying api",
+      version : "1.0.0",
+      description : "api for CRUD operations and other professional web features"
+    },
+    servers : [
+      {
+        url: "http://localhost/2045"
+      },
+    ],
+  },
+  apis: ["./routes/*.js"]
+}
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs',swaggerUI.serve,swaggerUI.setup(swaggerDocs))
 app.use("/", router);
 app.use((req, res, next) => {
   next(new ApiError(`Can not find ${req.originalUrl} on this server`, 404))

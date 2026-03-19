@@ -34,7 +34,7 @@ export const fetch = asyncHandler(async (req, res) => {
   const priority_ = parseInt(xss(sanitizer.priority))
   const skip = (page-1)*limit;
 
-  const filter = {/*owner: req.user.userId*/};
+  const filter = {owner: req.user.userId};
 
   if(sanitizer.keyword){
     const keywords = xss(sanitizer.keyword)
@@ -181,7 +181,7 @@ export const logout = asyncHandler(async(req,res) => {
 export const imageUpload = asyncHandler(async(req,res) => {
   res.status(200).json({
     message: "file uploaded",
-    file: req.files.map(file => file.path)
+    file: req.file.path
   })
 })
 
