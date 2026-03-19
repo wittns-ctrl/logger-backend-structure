@@ -1,9 +1,10 @@
+import dotenv from "dotenv"
+dotenv.config()
 import express from "express"
 import errorHandler from './middleware/errorhandler.js'
 import swaggerUI from 'swagger-ui-express';
 import swaggerJSDoc from "swagger-jsdoc";
 import { limiter } from './middleware/ratelimit.js'
-import dotenv from "dotenv"
 import helmet from "helmet";
 import hpp from "hpp";
 import cors from "cors";
@@ -14,7 +15,6 @@ import cookieParser from 'cookie-parser'
 import connectDB from "./config/db.js"
 const app = express();
 app.set('trust proxy', 1);
-dotenv.config()
 connectDB()
 app.use(compression());
 
@@ -60,11 +60,11 @@ const swaggerOptions = {
     },
     servers : [
       {
-        url: "http://localhost/2045"
+        url: "http://localhost:2045"
       },
     ],
   },
-  apis: ["./routes/*.js"]
+  apis: ["./routes/taskRoute.js"]
 }
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
