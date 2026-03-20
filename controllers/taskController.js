@@ -31,7 +31,7 @@ export const fetch = asyncHandler(async (req, res) => {
 
   const page = sanitizer.page || 1;
   const limit = sanitizer.limit || 3;
-  const priority_ = parseInt(xss(sanitizer.priority))
+  const priority_ = xss(sanitizer.priority)
   const skip = (page-1)*limit;
 
   const filter = {owner: req.user.userId};
@@ -66,9 +66,12 @@ export const fetch = asyncHandler(async (req, res) => {
 
 
 export const fetchById = asyncHandler(async (req, res) => {
-    const exists = await User.findById(req.params.id)
+    const exists = await User.findOne({
+      _id: req.params.id,
+      owner: req.user.userId
+    })
     if (!exists) {
-     throw new Error("user not found",404);
+     throw new ApiError("user not found",404);
     } else {
       res.status(200).json(exists);
     }
@@ -93,8 +96,11 @@ export const fetch_update = asyncHandler(async (req, res) => {
 
 export const f_delete = asyncHandler(async (req, res) => {
   const sanitizer = sanitize(req.params)
-    const id_ = parseInt(sanitizer.id);
-    const deleter = await User.findOneAndDelete({ id: id_ });
+    const id_ = sanitizer.id;
+    const deleter = await User.findOneAndDelete({ 
+      _id : id_,
+      owner: req.user.userId
+    });
     if (!deleter) {
     throw new Error("not found",404);
     }
@@ -186,7 +192,7 @@ export const imageUpload = asyncHandler(async(req,res) => {
 })
 
 export const updateImage = asyncHandler(async(req,res) => {
-const user = await users.findById(req.user.userId)
+const user = await users.findById({owner: req.user.userId})
 
 if(user.cloudinary_id){
   await cloudinary.uploader.destroy(user.cloudinary_id)
