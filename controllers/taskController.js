@@ -87,7 +87,7 @@ export const fetch_update = asyncHandler(async (req, res) => {
       new: true,
     });
     if (!findUpdated) {
-      throw new Error("not found",404);
+      throw new ApiError("not found",404);
     }
     res.status(200).json(findUpdated);
 });
@@ -102,7 +102,7 @@ export const f_delete = asyncHandler(async (req, res) => {
       owner: req.user.userId
     });
     if (!deleter) {
-    throw new Error("not found",404);
+    throw new ApiError("not found",404);
     }
     res.status(200).json("user deleted successfully");
 
@@ -114,12 +114,12 @@ export const login = asyncHandler(async(req,res) => {
   const {email,password} = sanitized;
   const search = await users.findOne({email});
   if (!search){
-    throw new Error("user not found",404)
+    throw new ApiError("user not found",404)
   }
   const matcher = search.password;
   const comparing = await bcrypt.compare(password,matcher)
   if(!comparing){
-    throw new Error("invalid password",401)
+    throw new ApiError("invalid password",401)
   }
   generateRefreshToken(res,search._id)
   const token = generateAccessToken(res,search._id);
@@ -139,7 +139,7 @@ export const refresh = asyncHandler(async(req,res) => {
   const  accessToken = generateAccessToken(res,decoded._id)
   }catch(error){
     if(error.name === "TokenExpiredError"){
-      throw new Error("token expired , please login again",401)
+      throw new ApiError("token expired , please login again",401)
     }
   }
 })
@@ -153,9 +153,9 @@ const {name,email,password} = sanitizedBody;
 const existes = await users.findOne({email:req.body.email});
 if(existes){
   
- throw new Error("unauthorized, email already exists",401);
+ throw new ApiError("unauthorized, email already exists",401);
 }
-const createUser = users.create(
+const createUser = await users.create(
   {
     name: name,
     email: email,
@@ -172,7 +172,7 @@ export const logout = asyncHandler(async(req,res) => {
   const refreshToken = req.cookies.RefreshToken
   if(!refreshToken){
     
-    throw new Error("no token to logout",400)
+    throw new ApiError("no token to logout",400)
   }
   res.clearCookie("RefreshToken",
   {
