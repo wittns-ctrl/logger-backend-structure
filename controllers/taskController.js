@@ -178,7 +178,7 @@ export const logout = asyncHandler(async(req,res) => {
   {
     httpOnly : true,
     secure: process.env.NODE_ENV == "production",
-    sameSite: "Strict"
+    sameSite: "none"
   }
   )
   res.status(200).json({message : "user logged out successfully"})
