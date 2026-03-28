@@ -163,7 +163,11 @@ const createUser = await users.create(
     profile : req.files ? req.files : undefined
   }
 )
-res.status(201).send("user created successfully")
+res.status(201).json({
+    message: "user created successfully",
+    name: createUser.name,
+    id: createUser._id
+});
 })
 
 

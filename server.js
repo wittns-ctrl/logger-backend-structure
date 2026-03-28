@@ -31,7 +31,7 @@ const corsOptions = {
       return callback(null, true) 
     }
     else {
-      callback(null,false);
+      callback(new Error('Not allowed by CORS'),null);
     }
   },
   methods: ['GET', 'POST', 'PATCH', 'DELETE','PUT'],
@@ -81,3 +81,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT,'0.0.0.0', () => {
   console.log(`server running on port ${PORT} `)
 })
+
+export default app;
