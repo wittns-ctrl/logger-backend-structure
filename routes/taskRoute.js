@@ -53,7 +53,7 @@ import upload from "../middleware/cloud.js"
  *         description: Server error
  */
 router.route("/tasks")
-  .post(protect, validate(titleSchema), create)
+  .post(protect,validate(titleSchema), create)
   .get(fetch)
 
 /**

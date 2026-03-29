@@ -121,8 +121,11 @@ export const login = asyncHandler(async(req,res) => {
   if(!comparing){
     throw new ApiError("invalid password",401)
   }
-  generateRefreshToken(res,search._id)
   const token = generateAccessToken(res,search._id);
+
+  res.status(200).json({
+    Access_token : token
+  })
 })
 
 
@@ -132,7 +135,7 @@ export const refresh = asyncHandler(async(req,res) => {
   const refreshToken = req.cookies.RefreshToken;
   if(!refreshToken){
   
-    throw new Error("no refreshtoken , please login again",401)
+    throw new ApiError("no refreshtoken , please login again",401)
   }
   try{
   const decoded = jwt.verify(refreshToken,process.env.JWT_REFRESH)
